@@ -1,7 +1,7 @@
 import requests
 import base64
 
-UNISAT_DOMAIN = "https://open-api.unisat.io/"
+UNISAT_DOMAIN = "https://open-api.unisat.io"
 
 def create_order(apiKey: str, fileName: str, receiveAddress: str, feeRate: int, devAddress = None):
     '''

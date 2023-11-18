@@ -1,18 +1,22 @@
 import requests
+import json
 
 def get_latest_block_number():
     '''
         查询最新的区块高度
     '''
     url = "https://blockchain.info/latestblock"
-    print("query lastest block number, url:{}".format(url))
+    print("query latest block number, url:{}".format(url))
     
     try:
         response = requests.get(url)
-        print("response:", response)
-        return response['height']
+        if response.status_code != 200:
+            print("ERROR call blockchain api to query latest block number error")
+            return -1
+        print("response:", response.text)
+        return json.loads(response.text)['height']
     except Exception as e:
-        print("call blockchain api to query lastest block number error", e)
+        print("call blockchain api to query latest block number error, message:", e)
         return 0
 
 def get_gas_detail():

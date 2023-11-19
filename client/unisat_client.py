@@ -34,10 +34,14 @@ def create_order(api_key: str, filename: str, receive_address: str, fee_rate: in
         print("response:", response)
         code = response['code']
         if code == 0:
-            return response['data']['orderId'], response['data']['amount'], response['payAddress']
+            order_id = response['data']['orderId']
+            amount = response['data']['amount']
+            pay_address = response['data']['payAddress']
+            status = response['data']['status']
+            return order_id, amount, pay_address, status
     except Exception as e:
         print('call unisat api to create order failed', e)
-        return -1, 0, ""
+        return -1, 0, "", "NONE"
 
 
 def query_order_detail(api_key: str, order_id: int):

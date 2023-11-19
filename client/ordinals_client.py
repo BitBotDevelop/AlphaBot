@@ -43,6 +43,7 @@ def inscribe_estimate(receive_address: None, fee_rate: int, filename: str):
     if receive_address is None:
         receive_address = "bc1p63zzzdtedgjgf0n2yaelxjzfnsnl32k9cq9ve4ggt9etvvw9l63sgry5qf"
     try:
+        headers = {"Content-Type": "application/json"}
         data = {
             "destination": receive_address,
             "fee_rate": fee_rate,
@@ -50,7 +51,7 @@ def inscribe_estimate(receive_address: None, fee_rate: int, filename: str):
             "content_type": "text/plain",
             "file_sizes": [len(filename)],
         }
-        response = client.http_client.post(url, data=data)
+        response = client.http_client.post(url=url, data=data, headers=headers)
         print("response:", response)
         return response['total_cost']
     except Exception as e:

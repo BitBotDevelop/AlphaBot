@@ -14,7 +14,7 @@ def get(url: str, headers=None):
                   .format(response.status_code, response.reason))
             return None
         print("response:", response.text)
-        return json.loads(response.text)
+        return response.json()
     except Exception as e:
         print("ERROR call http get method exception, message:", e)
         return None
@@ -26,12 +26,12 @@ def post(url, data, headers=None):
     """
     try:
         print("http post,url:{},header:{},data:{}".format(url, json.dumps(headers), json.dumps(data)))
-        response = requests.post(url=url, data=data, headers=headers)
+        response = requests.post(url=url, json=data, headers=headers)
         if response.status_code != 200:
             print("ERROR call http post method failed, status_code:{},message:{}"
                   .format(response.status_code, response.reason))
             return None
-        return json.loads(response.text)
+        return response.json()
     except Exception as e:
         print("ERROR call http post method exception, message:", e)
         return None

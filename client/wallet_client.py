@@ -20,8 +20,9 @@ class WalletClient:
         """
         return "bc1pv8e6fx8yvjh0rj3m87su4gfff0arrg8nhjxhpkjslnztwc47rvqsdhtl3v"
 
-    def pay_for_order(self, order_id: int, amount: int, receive_address: str, pay_address: str):
+    def pay_for_order(self, order_id: int, amount: int, pay_address: str, receive_address: str, status: str):
         """
             对订单进行付款，并保存到数据库中, 通过消息队列发送到订单监控线程以查询订单的状态
         """
-        pass
+        print("pay for the order,order_id:{},amount:{}, pay_to_address:{},receive_address:{}, order status:{}"
+              .format(order_id, amount, pay_address, receive_address, status))

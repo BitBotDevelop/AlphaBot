@@ -40,9 +40,9 @@ class BitMapBot:
         # 5 获取一个bitmap的接收地址
         receive_address = self.wallet.get_unsed_t2pr_address()
         dev_address = self.wallet.get_dev_address()
-        (order_id, amount, pay_address) = create_order(self.get_api_key(), filename, receive_address, gas_fee, dev_address)
+        (order_id, amount, pay_address, status) = create_order(self.get_api_key(), filename, receive_address, gas_fee, dev_address)
         # 6 对订单进行支付
-        self.wallet.pay_for_order(order_id, amount, pay_address, receive_address)
+        self.wallet.pay_for_order(order_id, amount, pay_address, receive_address, status)
         # 7 等待unisat提交交易到链上，后续订单交易监控由单独的线程处理
 
 

@@ -1,16 +1,17 @@
-from client.blockchain_client import *
 from client.ordinals_client import *
 from client.unisat_client import *
 from client.wallet_client import *
 from typing import List
+from service.block_stats import *
 import random
 
 
 class BitMapBot:
 
-    def __init__(self, api_keys: List[str], wallet: WalletClient) -> None:
+    def __init__(self, api_keys: List[str], wallet: WalletClient, block_stats: BlockStats) -> None:
         self.api_keys = api_keys
         self.wallet = wallet
+        self.block_stats = block_stats
 
     def get_api_key(self):
         if self.api_keys is None or len(self.api_keys):
@@ -20,7 +21,7 @@ class BitMapBot:
 
     def run(self):
         # 1 查询当前最新的区块
-        block_height = get_latest_block_number()
+        block_height = self.block_stats.get_last_block()['height']
         if block_height <= 0:
             print("error, get block height error, wait to re run")
             return

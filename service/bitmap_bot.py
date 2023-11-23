@@ -21,7 +21,7 @@ class BitMapBot:
 
     def run(self):
         # 1 查询当前最新的区块
-        block_height = self.block_stats.get_last_block()['height']
+        block_height = self.block_stats.get_last_block().height
         if block_height <= 0:
             print("error, get block height error, wait to re run")
             return

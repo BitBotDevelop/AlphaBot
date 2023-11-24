@@ -1,5 +1,6 @@
 import client.http_client
 import time
+import requests
 
 
 def get_latest_block():
@@ -79,3 +80,39 @@ def get_gas_fee(fee_type="halfHourFee"):
         return gas_detail[fee_type]
     else:
         return 0
+
+def broadcast_tx(tx_hex, network="testnet"):
+    """
+        广播交易到链上，使用blockstream
+    """
+    net = ""
+    if network == "testnet":
+        net = "testnet/"
+    # 设置基本的 URL
+    base_url = "https://blockstream.info/" + net + "api/tx"
+
+    try:
+        response = requests.post(base_url, tx_hex)
+        print("response:", response)
+        return response
+    except Exception as e:
+        print("call blockchain api to broadcast tx error, message:", e)
+        return None
+    
+def broadcast_tx_v2(tx_hex, network="testnet"):
+    """
+        广播交易到链上, 使用mempool
+    """
+    net = ""
+    if network == "testnet":
+        net = "testnet/"
+    # 设置基本的 URL
+    base_url = "https://mempool.space/" + net + "api/tx"
+
+    try:
+        response = requests.post(base_url, tx_hex)
+        print("response:", response)
+        return response
+    except Exception as e:
+        print("call blockchain api to broadcast tx error, message:", e)
+        return None

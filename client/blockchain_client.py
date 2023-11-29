@@ -1,6 +1,7 @@
 import client.http_client
 import time
 import requests
+import json
 
 
 def get_latest_block():
@@ -93,7 +94,6 @@ def broadcast_tx(tx_hex, network="testnet"):
 
     try:
         response = requests.post(base_url, tx_hex)
-        print("response:", response)
         return response
     except Exception as e:
         print("call blockchain api to broadcast tx error, message:", e)
@@ -116,3 +116,87 @@ def broadcast_tx_v2(tx_hex, network="testnet"):
     except Exception as e:
         print("call blockchain api to broadcast tx error, message:", e)
         return None
+
+def is_valid_json(data):
+    try:
+        json.loads(data)
+        return True
+    except ValueError:
+        return False
+    
+async def address_once_had_money(address, network="testnet"):
+    """
+        查询地址是否接收到资金
+    """
+    
+    url = f"https://mempool.space/api/address/{address}"
+    if network == "testnet":
+        url = f"https://mempool.space/testnet/api/address/{address}"
+    
+    print(url)
+    
+    try:
+        response = requests.get(url)
+        nonjson = response.text
+        
+        if any(error_keyword in nonjson.lower() for error_keyword in ['rpc error', 'too many requests', 'bad request']):
+            if network == 'main':
+                url = f"https://blockstream.info/api/address/{address}"
+                response = requests.get(url)
+                nonjson = response.text
+    except Exception as e:
+        if network == 'main':
+            url = f"https://blockstream.info/api/address/{address}"
+            response = requests.get(url)
+            nonjson = response.text
+
+    print("response:", nonjson)
+    if not is_valid_json(nonjson):
+        return False
+    
+    json_data = json.loads(nonjson)
+    
+    if json_data["chain_stats"]["tx_count"] > 0 or (json_data["mempool_stats"]["tx_count"] > 0):
+        return True
+    
+    return False
+
+async def address_received_money_in_this_tx(address: str,  network="testnet"):
+    """
+        查询地址是否接收到资金
+    """
+
+    url = f"https://mempool.space/api/address/{address}/txs"
+    if network == "testnet":
+        url = f"https://mempool.space/testnet/api/address/{address}/txs"
+    
+    try:
+        response = requests.get(url)
+        nonjson = response.text
+        
+        if any(error_keyword in nonjson.lower() for error_keyword in ['rpc error', 'too many requests', 'bad request']):
+            if network == 'main':
+                url = f"https://blockstream.info/api/address/{address}/txs"
+                response = requests.get(url)
+                nonjson = response.text
+    except Exception as e:
+        if network == 'main':
+            url = f"https://blockstream.info/api/address/{address}/txs"
+            response = requests.get(url)
+            nonjson = response.text
+
+    json_data = json.loads(nonjson)
+    
+    txid = None
+    vout = None
+    amt = None
+    
+    for tx in json_data:
+        for index, output in enumerate(tx["vout"]):
+            if output.get("scriptpubkey_address") == address:
+                txid = tx.get("txid")
+                vout = index
+                amt = output.get("value")
+                break
+    
+    return [txid, vout, amt]

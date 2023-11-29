@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import asc
 from common.inscribe import *
 from client.blockchain_client import address_once_had_money, address_received_money_in_this_tx, broadcast_tx
+from client.bot_client import inscribe_by_bot
+import time
 
 is_running = False
 
@@ -22,17 +24,24 @@ async def handle_task(priv: str, tick: str, amt: int, receive_address: str):
     address = get_inscription_address(priv, tr_script)
     print("铭文地址", address)
     result = await address_once_had_money(address, network="testnet")
+    new_status = "waiting_pay"
     if result:
-      [txid, vout, amount] = await address_received_money_in_this_tx("tb1p52ex09p6en3czr0rs7sn5q2zw5t6ueasxtvnfshfe2ef2h2x5khqh2h5qm", network="testnet")
-      [txhex, vsize, newTxid ] = inscribe_from_tr_script(txid, vout, amount, priv, tr_script, receive_address)
-      print(txhex)
-      resp = broadcast_tx(txhex)
-      print(resp.text)
-      
+        new_status = "waiting_mint"
+        [txid, vout, amount] = await address_received_money_in_this_tx(address, network="testnet")
+        result = inscribe_by_bot(priv, tick, amt, receive_address, txid, vout, amount)
+        print(result['code'], result['data']['result'])
+        if result['code'] == 0 and ('-27' in result['data']['result'] or "sendrawtransaction RPC error" not in result['data']['result']):
+            new_status = "minted"
+
+    return new_status
+
 
 is_running = False
 # 定义一个定时任务函数
 async def scheduled_task():
+    """
+    定时拉取订单，并处理
+    """
     global db
     print("定时任务执行")
     global is_running  # 将 is_running 声明为全局变量
@@ -40,16 +49,22 @@ async def scheduled_task():
         return
     is_running = True
     try:
-      tasks = db.query(Brc20MintTask).filter(Brc20MintTask.status == "waiting_pay").order_by(asc(Brc20MintTask.updated_at)).all()
-      for task in tasks:
-          print(task.id, task.tr_priv, task.tick, task.amount, task.receive_address)
-          await handle_task(task.tr_priv, task.tick, task.amount, task.receive_address)
+        tasks = db.query(Brc20MintTask).filter(Brc20MintTask.status == "waiting_pay").order_by(asc(Brc20MintTask.updated_at)).all()
+        for task in tasks:
+            print(task.id, task.tr_priv, task.tick, task.amount, task.receive_address)
+            new_status = await handle_task(task.tr_priv, task.tick, task.amount, task.receive_address)
+            if new_status != task.status:
+                db.query(Brc20MintTask).filter(Brc20MintTask.id == task.id).update({
+                    "status": new_status,
+                    "updated_at": int(time.time())
+                })
+                db.commit()
     finally:
-      is_running = False
+        is_running = False
     
 
 # 添加一个定时任务，每隔5秒执行一次
-scheduler.add_job(scheduled_task, "interval", seconds=5)
+scheduler.add_job(scheduled_task, "interval", seconds=10)
 
 
 def start_scheduler():

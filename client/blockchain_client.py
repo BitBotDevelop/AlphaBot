@@ -133,8 +133,6 @@ async def address_once_had_money(address, network="testnet"):
     if network == "testnet":
         url = f"https://mempool.space/testnet/api/address/{address}"
     
-    print(url)
-    
     try:
         response = requests.get(url)
         nonjson = response.text
@@ -150,7 +148,6 @@ async def address_once_had_money(address, network="testnet"):
             response = requests.get(url)
             nonjson = response.text
 
-    print("response:", nonjson)
     if not is_valid_json(nonjson):
         return False
     

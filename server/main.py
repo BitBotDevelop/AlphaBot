@@ -10,10 +10,12 @@ from server.database import get_db, User
 from common.inscribe import *
 
 from server.database import Brc20MintTask
+from client.blockchain_client import get_gas_fee
 
 # 创建 FastAPI 应用程序
 app = FastAPI()
 
+# 启动定时任务
 start_scheduler()
 
 set_network("testnet")
@@ -64,10 +66,12 @@ def mint_brc20(body: Brc20MintRequest, db: Session = Depends(get_db)):
     content = generate_brc20_mint_inscribe_content(body.tick, body.amt)
     script = get_text_script_pub_key(priv, content)
     inscriptionAddress = get_inscription_address(priv, script)
+    feeRate = get_gas_fee()
+    fee = 152.25 * feeRate + 546
     
-    return {"code": 0, "message": "ok", "data": {"taskId": taskId, "inscription_address": inscriptionAddress }}
+    return {"code": 0, "message": "ok", "data": {"taskId": taskId, "inscriptionAddress": inscriptionAddress, "fee": fee }}
 
-@app.get("/api/brc20/mint/tasks")
+@app.get("/internal/api/brc20/mint/tasks")
 def query_brc20_mint_tasks(db: Session = Depends(get_db)):
     tasks = db.query(Brc20MintTask).all()
     return {"code": 0, "message": "ok", "data": tasks}

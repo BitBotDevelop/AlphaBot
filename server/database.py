@@ -9,12 +9,6 @@ engine = create_engine(DATABASE_URL)
 
 Base = declarative_base()
 
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    email = Column(String, unique=True, index=True)
 
 
 class Brc20MintTask(Base):
@@ -24,7 +18,9 @@ class Brc20MintTask(Base):
     tr_priv = Column(String, unique=False, index=False)
     tick = Column(String, unique=False, index=False)
     amount = Column(Integer, unique=False, index=False)
-    receive_address = Column(String, unique=False, index=True)
+    receive_address = Column(String, unique=False, index=False)
+    inscribe_address = Column(String, unique=False, index=False)
+    created_at = Column(Integer, unique=False, index=True)
     updated_at = Column(Integer, unique=False, index=True)
     status = Column(String, unique=False, index=True) # waiting_pay, waiting_mint, minted, failed, waiting_refund, refunded
 

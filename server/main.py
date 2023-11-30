@@ -6,7 +6,7 @@ from typing import List
 
 from server.cron import start_scheduler
 from sqlalchemy.orm import Session
-from server.database import get_db, User
+from server.database import get_db
 
 from common.inscribe import *
 

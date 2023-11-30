@@ -10,7 +10,6 @@ engine = create_engine(DATABASE_URL)
 Base = declarative_base()
 
 
-
 class Brc20MintTask(Base):
     __tablename__ = "brc20_mint_tasks"
 

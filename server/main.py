@@ -1,4 +1,8 @@
-from fastapi import FastAPI, Depends, HTTPException
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 import uuid
 import time
@@ -13,6 +17,7 @@ from common.inscribe import *
 from server.database import Brc20MintTask
 from client.blockchain_client import get_gas_fee
 from sqlalchemy.orm import defer
+
 
 # 创建 FastAPI 应用程序
 app = FastAPI()

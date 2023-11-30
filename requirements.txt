@@ -44,6 +44,7 @@ pydantic_core==2.14.5
 Pygments==2.17.2
 python-bitcoinrpc==1.0
 python-dateutil==2.8.2
+python-dotenv==1.0.0
 pytz==2023.3.post1
 pyzmq==25.1.1
 requests==2.31.0

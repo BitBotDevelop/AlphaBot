@@ -14,7 +14,7 @@ class MintRankModel:
         self.max_supply = max_supply
         self.minted = minted
         self.mint_mem_pool = mint_mem_pool
-        self.mint_progress = round((int(self.minted) + int(self.mint_mem_pool)) / int(self.max_supply) * 100, 2)
+        self.mint_progress = round((float(self.minted) + float(self.mint_mem_pool)) / float(self.max_supply) * 100, 2)
 
     def __lt__(self, other):
         return self.mint_progress > other.mint_progress

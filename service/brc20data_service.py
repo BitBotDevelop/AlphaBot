@@ -31,7 +31,7 @@ class Brc20Data:
                 minted_count = tick_detail['minted']
                 mint_mem_pool = tick_detail['mintMemPool']
                 # 去除已经mint完成的tick
-                if (int(mint_mem_pool) + int(minted_count)) / int(max_supply) >= 1:
+                if (float(mint_mem_pool) + float(minted_count)) / float(max_supply) >= 1:
                     print('the tick:{} has minted over'.format(tick))
                     continue
                 mint_rank_model = MintRankModel(inscription_id=inscription_id, tick=tick,

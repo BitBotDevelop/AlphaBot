@@ -33,4 +33,4 @@ def get_brc20_signals_stats_test():
 
 
 if __name__ == '__main__':
-    get_brc20_block_signals_test()
+    get_minting_rank_test()

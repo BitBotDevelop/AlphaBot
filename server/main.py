@@ -15,10 +15,11 @@ from server.database import get_db
 from common.inscribe import *
 
 from server.database import Brc20MintTask
+from service.brc20data_service import Brc20Data
 from client.blockchain_client import get_gas_fee
 from sqlalchemy.orm import defer
 
-
+brc20_data = Brc20Data(config={})
 # 创建 FastAPI 应用程序
 app = FastAPI()
 
@@ -27,15 +28,18 @@ start_scheduler()
 
 set_network("testnet")
 
+
 # 创建一个路由，处理 GET 请求
 @app.get("/")
 def read_root():
     return {"message": "Hello, FastAPI!"}
 
+
 class Brc20MintRequest(BaseModel):
     tick: str
     amt: int
     receive_address: str
+
 
 @app.post("/api/brc20/mint")
 async def mint_brc20(body: Brc20MintRequest, db: Session = Depends(get_db)):
@@ -62,16 +66,20 @@ async def mint_brc20(body: Brc20MintRequest, db: Session = Depends(get_db)):
 
     feeRate = get_gas_fee()
     fee = 152.25 * feeRate + 546
-    
-    return {"code": 0, "message": "ok", "data": {"taskId": taskId, "inscriptionAddress": inscriptionAddress, "fee": fee }}
+
+    return {"code": 0, "message": "ok",
+            "data": {"taskId": taskId, "inscriptionAddress": inscriptionAddress, "fee": fee}}
+
 
 @app.get("/internal/api/brc20/mint/tasks")
 def query_brc20_mint_tasks(db: Session = Depends(get_db)):
     tasks = db.query(Brc20MintTask).all()
     return {"code": 0, "message": "ok", "data": tasks}
 
+
 class OrderStatusRequest(BaseModel):
     ids: List[str]
+
 
 @app.post("/api/brc20/mint/tasks/status")
 async def query_brc20_mint_orders_by_ids(body: OrderStatusRequest, db: Session = Depends(get_db)):
@@ -79,3 +87,9 @@ async def query_brc20_mint_orders_by_ids(body: OrderStatusRequest, db: Session =
     print(ids)
     tasks = db.query(Brc20MintTask).filter(Brc20MintTask.id.in_(ids)).options(defer(Brc20MintTask.tr_priv)).all()
     return {"code": 0, "message": "ok", "data": tasks}
+
+
+@app.get("/api/brc20/mint/rank")
+def query_brc20_mint_rank():
+    data = brc20_data.get_minting_rank()
+    return {"code": 0, "message": "success", "data": data}

@@ -89,12 +89,16 @@ async def query_brc20_mint_orders_by_ids(body: OrderStatusRequest, db: Session =
     return {"code": 0, "message": "ok", "data": tasks}
 
 
-@app.get("/api/brc20/mint/rank/{top_n}")
-def query_brc20_mint_rank(top_n: int):
+class MintRankRequest(BaseModel):
+    period: str
+    top_n: int
+
+@app.post("/api/brc20/mint/rank")
+def query_brc20_mint_rank(body: MintRankRequest):
     """
         根据用户选择的top_n参数来展示结果,top_n表示当前mint_progress倒排后的结果
     """
-    data = brc20_data.get_minting_rank(top_n)
+    data = brc20_data.get_minting_rank(body.top_n, body.period)
     return {"code": 0, "message": "success", "data": data}
 
 

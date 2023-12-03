@@ -11,14 +11,11 @@ class Brc20Data:
     def __init__(self, config: Dict[str, Any]):
         self.config = config
 
-    def get_minting_rank(self, top_n: int = 10):
+    def get_minting_rank(self, top_n: int = 10, period: str = "1D"):
         """
             查询mint中的brc20列表, 默认展示top10
         """
-        period = "1D"
         # period values: 1b: 最新的1个block, 3b, 10b; 1D: 最近的一天 3D 7D
-        if self.config.get('MINT_PERIOD') is not None:
-            period = self.config.get('MINT_PERIOD')
         mint_rank = get_brc20_mint_rank(api_key=self.config.get("API_KEY"), period=period)
         mint_rank_rs = []
         if mint_rank is not None:

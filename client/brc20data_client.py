@@ -3,6 +3,7 @@
 """
 import client.http_client
 
+default_api_key = "142cf1b0-1ca7-11ee-bb5e-9d74c2e854ac"
 
 def get_brc20_list():
     """
@@ -50,7 +51,7 @@ def get_brc20_list():
     return brc20_list
 
 
-def get_brc20_mint_rank(period="1D"):
+def get_brc20_mint_rank(api_key: str, period="1D"):
     """
         根据指定的周期来查询mint中的brc20_list
         :return:
@@ -74,10 +75,12 @@ def get_brc20_mint_rank(period="1D"):
             }
         }
     """
+    if api_key is None:
+        api_key = default_api_key
     url = "https://www.geniidata.com/api/btc/ord/flow/rank?p=brc20&type={}".format(period)
     headers = {
         "accept": "application/json",
-        "api-key": "142cf1b0-1ca7-11ee-bb5e-9d74c2e854ac"
+        "api-key": api_key
     }
     response = client.http_client.get(url, headers=headers)
     if response['code'] == 0:
@@ -85,3 +88,43 @@ def get_brc20_mint_rank(period="1D"):
     else:
         return None
 
+
+def get_brc20_tick_info(api_key: str, tick: str):
+    """
+        获取brc20的tick信息:
+        :return
+        {
+            "code":0,
+            "message":"success",
+            "data":{
+                "tick":"ordi",
+                "inscription_id":"b61b0172d95e266c18aea0c624db987e971a5d6d4ebc2aaed85da4642d635735i0",
+                "inscription_number":348020,
+                "max":"21000000.000000000000000000",
+                "limit":"1000.000000000000000000",
+                "decimals":18,
+                "minted":"21000000.000000000000000000",
+                "mint_progress":"1.000000",
+                "transactions":207983,
+                "holders":12712,
+                "deployer":"bc1pxaneaf3w4d27hl2y93fuft2xk6m4u3wc4rafevc6slgd7f5tq2dqyfgy06",
+                "deploy_time":1678248991
+            }
+        }
+    """
+    if api_key is None:
+        api_key = default_api_key
+
+    if tick == "" or tick is None:
+        raise ValueError("Invalid tick")
+    url = "https://api.geniidata.com/api/1/brc20/tickinfo/{}".format(tick)
+    headers = {
+        "accept": "application/json",
+        "api-key": api_key
+    }
+
+    response = client.http_client.get(url, headers=headers)
+    if response['code'] == 0:
+        return response['data']
+    else:
+        return {}

@@ -93,3 +93,9 @@ async def query_brc20_mint_orders_by_ids(body: OrderStatusRequest, db: Session =
 def query_brc20_mint_rank():
     data = brc20_data.get_minting_rank()
     return {"code": 0, "message": "success", "data": data}
+
+
+@app.get("/api/brc20/tick/info/{tick}")
+def query_brc20_tick_info(tick: str):
+    data = brc20_data.get_tick_info(tick)
+    return {"code": 0, "message": "success", "data": data}

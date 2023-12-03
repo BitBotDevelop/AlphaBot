@@ -19,7 +19,7 @@ class Brc20Data:
         # period values: 1b: 最新的1个block, 3b, 10b; 1D: 最近的一天 3D 7D
         if self.config.get('MINT_PERIOD') is not None:
             period = self.config.get('MINT_PERIOD')
-        mint_rank = get_brc20_mint_rank(period)
+        mint_rank = get_brc20_mint_rank(api_key=self.config.get("API_KEY"), period=period)
         mint_rank_rs = []
         if mint_rank is not None:
             rows = mint_rank['rows']
@@ -45,3 +45,6 @@ class Brc20Data:
 
         mint_rank_sorted = sorted(mint_rank_rs)
         return mint_rank_sorted
+
+    def get_tick_info(self, tick):
+        return get_brc20_tick_info(api_key=self.config.get("API_KEY"), tick=tick)

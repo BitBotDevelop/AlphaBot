@@ -20,5 +20,17 @@ def get_tick_info_test():
     print(jsonpickle.encode(tick_info))
 
 
+def get_brc20_block_signals_test():
+    op = 1
+    data = brc20_data.get_brc20_block_signals(op)
+    print(jsonpickle.encode(data))
+
+
+def get_brc20_signals_stats_test():
+    op = 1
+    data = brc20_data.get_brc20_signals_stats(op)
+    print(jsonpickle.encode(data))
+
+
 if __name__ == '__main__':
-    get_tick_info_test()
+    get_brc20_block_signals_test()

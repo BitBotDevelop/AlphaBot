@@ -128,3 +128,24 @@ def get_brc20_tick_info(api_key: str, tick: str):
         return response['data']
     else:
         return {}
+
+
+def get_brc20_alpha_signals(api_key: str, op: int = 1):
+    """
+        查找brc20的alpha数据，跟单
+        @param: op:空，所有 1:mint, 2:sell, 3:buy
+    """
+    if api_key is None:
+        api_key = default_api_key
+
+    url = "https://www.geniidata.com/api/btc/ord/flow/activity?op={}&p=brc20".format(op)
+    headers = {
+        "accept": "application/json",
+        "api-key": api_key
+    }
+
+    response = client.http_client.get(url, headers=headers)
+    if response['code'] == 0:
+        return response['data']
+    else:
+        return []

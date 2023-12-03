@@ -14,7 +14,25 @@ class MintRankModel:
         self.max_supply = max_supply
         self.minted = minted
         self.mint_mem_pool = mint_mem_pool
-        self.mint_progress = round((int(self.minted) + int(self.mint_mem_pool))/int(self.max_supply) * 100, 2)
+        self.mint_progress = round((int(self.minted) + int(self.mint_mem_pool)) / int(self.max_supply) * 100, 2)
 
     def __lt__(self, other):
         return self.mint_progress > other.mint_progress
+
+
+class Brc20SignalDetailModel:
+    def __init__(self, tick: str):
+        """
+            @param tick: tick
+        """
+        self.tick = tick
+        self.amount = 0
+        self.addresses = set()
+        self.address_number = 0
+
+    def add(self, address: str, amount: float):
+        self.amount += amount
+        self.addresses.add(address)
+        self.address_number = len(self.addresses)
+
+

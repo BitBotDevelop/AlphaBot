@@ -45,3 +45,47 @@ class Brc20Data:
 
     def get_tick_info(self, tick):
         return get_brc20_tick_info(api_key=self.config.get("API_KEY"), tick=tick)
+
+    def get_brc20_block_signals(self, op: int):
+        """
+            获取brc20每个区块的信号
+        """
+        brc20_signals = get_brc20_alpha_signals(api_key=self.config.get("API_KEY"), op=op)
+        block_signal_dict = {}
+        for block_item in brc20_signals:
+            block_number = block_item['blockNumber']
+            tick_signal_dict = {}
+            for tx in block_item['list']:
+                if str(tx['p']) != 'brc20':
+                    continue
+                tick = tx['tick']
+                if tick not in tick_signal_dict.keys():
+                    brc20_signal = Brc20SignalDetailModel(tick)
+                    tick_signal_dict[tick] = brc20_signal
+                tick_signal_dict[tick].add(tx['address'], int(tx['amount']))
+            block_signal_dict[block_number] = tick_signal_dict
+
+        return block_signal_dict
+
+    def get_brc20_signals_stats(self, op: int):
+        """
+            获取brc20多个区块的统计信号
+        """
+        brc20_signals = get_brc20_alpha_signals(api_key=self.config.get("API_KEY"), op=op)
+        brc20_signals_stats = {}
+        tick_signal_dict = {}
+        block_numbers = {}
+        for block_item in brc20_signals:
+            block_numbers[block_item['blockNumber']] = block_item['time']
+            for tx in block_item['list']:
+                if str(tx['p']) != 'brc20':
+                    continue
+                tick = tx['tick']
+                if tick not in tick_signal_dict.keys():
+                    brc20_signal = Brc20SignalDetailModel(tick)
+                    tick_signal_dict[tick] = brc20_signal
+                tick_signal_dict[tick].add(tx['address'], float(tx['amount']))
+
+        brc20_signals_stats['block_numbers'] = block_numbers
+        brc20_signals_stats['tick_signal_dict'] = tick_signal_dict
+        return brc20_signals_stats

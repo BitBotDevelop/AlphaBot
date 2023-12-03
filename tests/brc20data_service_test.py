@@ -14,5 +14,11 @@ def get_minting_rank_test():
     print(jsonpickle.encode(mint_rank_data))
 
 
+def get_tick_info_test():
+    tick = "mice"
+    tick_info = brc20_data.get_tick_info(tick)
+    print(jsonpickle.encode(tick_info))
+
+
 if __name__ == '__main__':
-    get_minting_rank_test()
+    get_tick_info_test()

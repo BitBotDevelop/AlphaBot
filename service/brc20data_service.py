@@ -11,9 +11,9 @@ class Brc20Data:
     def __init__(self, config: Dict[str, Any]):
         self.config = config
 
-    def get_minting_rank(self):
+    def get_minting_rank(self, top_n: int = 10):
         """
-            查询mint中的brc20列表
+            查询mint中的brc20列表, 默认展示top10
         """
         period = "1D"
         # period values: 1b: 最新的1个block, 3b, 10b; 1D: 最近的一天 3D 7D
@@ -44,7 +44,7 @@ class Brc20Data:
                 mint_rank_rs.append(mint_rank_model)
 
         mint_rank_sorted = sorted(mint_rank_rs)
-        return mint_rank_sorted
+        return mint_rank_sorted[: top_n]
 
     def get_tick_info(self, tick):
         return get_brc20_tick_info(api_key=self.config.get("API_KEY"), tick=tick)

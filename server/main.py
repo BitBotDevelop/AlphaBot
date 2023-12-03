@@ -89,13 +89,19 @@ async def query_brc20_mint_orders_by_ids(body: OrderStatusRequest, db: Session =
     return {"code": 0, "message": "ok", "data": tasks}
 
 
-@app.get("/api/brc20/mint/rank")
-def query_brc20_mint_rank():
-    data = brc20_data.get_minting_rank()
+@app.get("/api/brc20/mint/rank/{top_n}")
+def query_brc20_mint_rank(top_n: int):
+    """
+        根据用户选择的top_n参数来展示结果,top_n表示当前mint_progress倒排后的结果
+    """
+    data = brc20_data.get_minting_rank(top_n)
     return {"code": 0, "message": "success", "data": data}
 
 
 @app.get("/api/brc20/tick/info/{tick}")
 def query_brc20_tick_info(tick: str):
+    """
+        查询brc20 tick的详情,用户mint时查询的数据
+    """
     data = brc20_data.get_tick_info(tick)
     return {"code": 0, "message": "success", "data": data}

@@ -49,7 +49,9 @@ async def scheduled_task():
         return
     is_running = True
     try:
-        tasks = db.query(Brc20MintTask).filter(Brc20MintTask.status == "waiting_pay").order_by(asc(Brc20MintTask.updated_at)).all()
+        # 获得时间
+        now = int(time.time())
+        tasks = db.query(Brc20MintTask).filter(Brc20MintTask.status == "waiting_pay").filter(Brc20MintTask.created_at > now - 600).order_by(asc(Brc20MintTask.updated_at)).all()
         for task in tasks:
             print(task.id, task.tr_priv, task.tick, task.amount, task.receive_address)
             new_status = await handle_task(task.tr_priv, task.tick, task.amount, task.receive_address)

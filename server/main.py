@@ -121,11 +121,12 @@ def add_brc20_ticks(body: AddBrc20TickRequest, db: Session = Depends(get_db)):
         添加brc20 ticks
     """
     ticks = body.ticks
+    print("add_brc20_ticks:{}".format(ticks))
     if ticks is not None and ticks != '':
         tick_list = ticks.split(",")
         for tick in tick_list:
             tick_info = brc20_data.get_tick_info(tick)
-            tick_model = Brc20TickInfo.query.filter_by(tick=tick).first()
+            tick_model = db.query(Brc20TickInfo).filter_by(tick=tick).first()
             if tick_model is not None:
                 # 更新
                 tick_model.minted=tick_info['minted']
@@ -169,13 +170,14 @@ def add_brc20_ticks(body: DeleteBrc20TickRequest, db: Session = Depends(get_db))
     """
     ticks = body.ticks
     if ticks is not None and ticks != '':
-        num = db.query(Brc20TickInfo).filter_by(Brc20TickInfo.tick.in_(ticks.split(","))).delete(synchronize_session=False)
+        num = db.query(Brc20TickInfo).filter(Brc20TickInfo.tick.in_(ticks.split(","))).delete(synchronize_session=False)
+        db.commit()
         print("delete ticks:{} succees, num:{}".format(ticks, num))
         
-    return {"code": 0, "message": "delete success", "data": []}
+    return {"code": 0, "message": "delete success", "data": [ticks]}
         
 
-@app.post("/api/brc20/tick/list")
+@app.get("/api/brc20/ticks/list")
 def add_brc20_ticks(db: Session = Depends(get_db)):
     ticks = db.query(Brc20TickInfo).all()
     return {"code": 0, "message": "ok", "data": ticks}

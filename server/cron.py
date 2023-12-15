@@ -1,11 +1,13 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from server.database import get_db, Brc20MintTask, SessionLocal
+from apscheduler.schedulers.background import BackgroundScheduler
+from server.database import get_db, Brc20MintTask, Brc20TickInfo, SessionLocal
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import asc
 from common.inscribe import *
 from client.blockchain_client import address_once_had_money, address_received_money_in_this_tx, broadcast_tx
 from client.bot_client import inscribe_by_bot
 import time
+from datetime import datetime
 
 is_running = False
 
@@ -69,6 +71,46 @@ async def scheduled_task():
 scheduler.add_job(scheduled_task, "interval", seconds=10)
 
 
+# 调度任务定时更新brc20 ticks
+back_scheduler = BackgroundScheduler()
+from service.brc20data_service import Brc20Data
+brc20_data = Brc20Data(config={})
+
+
+def update_brc20_ticks_info():
+    print("crane scheduler update_brc20_ticks_info,time:{}".format(datetime.now().strftime("%Y%m%d %H:%M:%S")))
+    ticks = db.query(Brc20TickInfo).all()
+    # 如果tick的mint_process不为1,则更新
+    for tick in ticks:
+        if float(tick.mint_progress) == 1:
+            print('tick:{} has been minted over'.format(tick.tick))
+            continue
+        tick_info = brc20_data.get_tick_info(tick.tick)
+        tick_model = db.query(Brc20TickInfo).filter_by(tick=tick.tick).first()
+        if tick_model is not None:
+            # 更新
+            tick_model.minted = tick_info['minted']
+            tick_model.mint_progress = tick_info['mint_progress']
+            tick_model.transactions = tick_info['transactions']
+            tick_model.holders = tick_info['holders']
+            tick_model.updated_at = int(time.time())
+        db.commit()
+
+# 每5分钟调度一次
+back_scheduler.add_job(update_brc20_ticks_info, trigger="interval", minutes=5)
+
+
 def start_scheduler():
     # 启动定时任务调度器
-    scheduler.start()
+    if not scheduler.running:
+        print("scheduler start")
+        scheduler.start()
+    else:
+        print("scheduler is running")
+
+    # 启动定时任务调度器
+    if not back_scheduler.running:
+        print("back_scheduler start")
+        back_scheduler.start()
+    else:
+        print("back_scheduler is running")

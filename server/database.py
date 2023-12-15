@@ -13,31 +13,31 @@ Base = declarative_base()
 class Brc20MintTask(Base):
     __tablename__ = "brc20_mint_tasks"
 
-    id = Column(String, primary_key=True, index=True)
-    tr_priv = Column(String, unique=False, index=False)
-    tick = Column(String, unique=False, index=False)
+    id = Column(String(128), primary_key=True, index=True)
+    tr_priv = Column(String(128), unique=False, index=False)
+    tick = Column(String(32), unique=False, index=False)
     amount = Column(Integer, unique=False, index=False)
-    receive_address = Column(String, unique=False, index=False)
-    inscribe_address = Column(String, unique=False, index=False)
+    receive_address = Column(String(128), unique=False, index=False)
+    inscribe_address = Column(String(128), unique=False, index=False)
     created_at = Column(Integer, unique=False, index=True)
     updated_at = Column(Integer, unique=False, index=True)
-    status = Column(String, unique=False, index=True) # waiting_pay, waiting_mint, minted, failed, waiting_refund, refunded
+    status = Column(String(32), unique=False, index=True) # waiting_pay, waiting_mint, minted, failed, waiting_refund, refunded
 
 class Brc20TickInfo(Base):
     __tablename__ = "brc20_tick_info"
     
-    inscription_id = Column(String, primary_key=True, index=True)
-    tick = Column(String, unique=False, index=True)
+    inscription_id = Column(String(128), primary_key=True, index=True)
+    tick = Column(String(32), unique=False, index=True)
     
     inscription_number = Column(Integer, unique=False, index=False)
-    max = Column(String, unique=False, index=False)
-    limit = Column(String, unique=False, index=False)
+    max = Column(String(64), unique=False, index=False)
+    limit = Column(String(32), unique=False, index=False)
     decimals = Column(Integer, unique=False, index=False)
-    minted = Column(String, unique=False, index=False)
-    mint_progress = Column(String, unique=False, index=False)
+    minted = Column(String(64), unique=False, index=False)
+    mint_progress = Column(String(32), unique=False, index=False)
     transactions = Column(Integer, unique=False, index=False) 
     holders = Column(Integer, unique=False, index=False) # 
-    deployer = Column(String, unique=False, index=False) # 
+    deployer = Column(String(128), unique=False, index=False) #
     deploy_time = Column(Integer, unique=False, index=False) # 
     created_at = Column(Integer, unique=False, index=False)
     updated_at = Column(Integer, unique=False, index=False)

@@ -14,7 +14,7 @@ from server.database import get_db
 
 from common.inscribe import *
 
-from server.database import Brc20MintTask
+from server.database import Brc20MintTask, Brc20TickInfo
 from service.brc20data_service import Brc20Data
 from client.blockchain_client import get_gas_fee
 from sqlalchemy.orm import defer
@@ -109,3 +109,73 @@ def query_brc20_tick_info(tick: str):
     """
     data = brc20_data.get_tick_info(tick)
     return {"code": 0, "message": "success", "data": data}
+
+
+class AddBrc20TickRequest(BaseModel):
+    ticks: str
+    
+    
+@app.post("/api/brc20/ticks/add")
+def add_brc20_ticks(body: AddBrc20TickRequest, db: Session = Depends(get_db)):
+    """
+        添加brc20 ticks
+    """
+    ticks = body.ticks
+    if ticks is not None and ticks != '':
+        tick_list = ticks.split(",")
+        for tick in tick_list:
+            tick_info = brc20_data.get_tick_info(tick)
+            tick_model = Brc20TickInfo.query.filter_by(tick=tick).first()
+            if tick_model is not None:
+                # 更新
+                tick_model.minted=tick_info['minted']
+                tick_model.mint_progress=tick_info['mint_progress']
+                tick_model.transactions=tick_info['transactions']
+                tick_model.holders=tick_info['holders']
+                tick_model.updated_at=int(time.time())
+                
+            else:
+                # 新增
+                tick_model = Brc20TickInfo(
+                    inscription_id = tick_info['inscription_id'],
+                    tick = tick_info['tick'],
+                    
+                    inscription_number =tick_info['inscription_number'],
+                    max = tick_info['max'],
+                    limit = tick_info['limit'],
+                    decimals = tick_info['decimals'],
+                    minted = tick_info['minted'],
+                    mint_progress = tick_info['mint_progress'],
+                    transactions = tick_info['transactions'],
+                    holders = tick_info['holders'], 
+                    deployer = tick_info['deployer'],
+                    deploy_time =tick_info['deploy_time'],
+                    created_at = int(time.time()),
+                    updated_at = int(time.time())
+                )
+                db.add(tick_model)
+            db.commit()
+            
+    
+    return {"code": 0, "message": "insert or update success", "data": []}
+
+class DeleteBrc20TickRequest(BaseModel):
+    ticks: str
+    
+@app.post("/api/brc20/ticks/delete")
+def add_brc20_ticks(body: DeleteBrc20TickRequest, db: Session = Depends(get_db)):
+    """
+        删除brc20 ticks
+    """
+    ticks = body.ticks
+    if ticks is not None and ticks != '':
+        num = db.query(Brc20TickInfo).filter_by(Brc20TickInfo.tick.in_(ticks.split(","))).delete(synchronize_session=False)
+        print("delete ticks:{} succees, num:{}".format(ticks, num))
+        
+    return {"code": 0, "message": "delete success", "data": []}
+        
+
+@app.post("/api/brc20/tick/list")
+def add_brc20_ticks(db: Session = Depends(get_db)):
+    ticks = db.query(Brc20TickInfo).all()
+    return {"code": 0, "message": "ok", "data": ticks}

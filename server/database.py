@@ -23,6 +23,24 @@ class Brc20MintTask(Base):
     updated_at = Column(Integer, unique=False, index=True)
     status = Column(String, unique=False, index=True) # waiting_pay, waiting_mint, minted, failed, waiting_refund, refunded
 
+class Brc20TickInfo(Base):
+    __tablename__ = "brc20_tick_info"
+    
+    inscription_id = Column(String, primary_key=True, index=True)
+    tick = Column(String, unique=False, index=True)
+    
+    inscription_number = Column(Integer, unique=False, index=False)
+    max = Column(String, unique=False, index=False)
+    limit = Column(String, unique=False, index=False)
+    decimals = Column(Integer, unique=False, index=False)
+    minted = Column(String, unique=False, index=False)
+    mint_progress = Column(String, unique=False, index=False)
+    transactions = Column(Integer, unique=False, index=False) 
+    holders = Column(Integer, unique=False, index=False) # 
+    deployer = Column(String, unique=False, index=False) # 
+    deploy_time = Column(Integer, unique=False, index=False) # 
+    created_at = Column(Integer, unique=False, index=False)
+    updated_at = Column(Integer, unique=False, index=False)
 
 # 创建数据库表
 Base.metadata.create_all(bind=engine)
